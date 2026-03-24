@@ -347,6 +347,10 @@ main{padding:18px 16px;max-width:600px;margin:0 auto;}
 .section-header{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin:18px 0 10px;padding:0 2px;}
 
 /* ── FILTER BAR ── */
+.scan-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block;animation:scanBounce 0.8s infinite ease-in-out;}
+.scan-dot:nth-child(2){animation-delay:0.2s;}
+.scan-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes scanBounce{0%,80%,100%{transform:scale(0.6);opacity:0.4;}40%{transform:scale(1);opacity:1;}}
 .filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;transition:background 0.3s,border-color 0.3s;}
 .filter-bar::-webkit-scrollbar{display:none;}
 body.mode-chores .filter-bar{background:#e1f0e4;border-bottom-color:#b8d8be;}
@@ -512,7 +516,7 @@ window.addEventListener('unhandledrejection', function(e){
       </div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="closeModal('add-member-overlay')">Cancel</button>
+      <button class="btn btn-secondary" onclick="guardedClose('add-member-overlay','member-name-input')">Cancel</button>
       <button class="btn btn-primary" id="btn-save-member">Save Member</button>
     </div>
     <div class="btn-row" id="member-delete-row" style="display:none;margin-top:8px;">
@@ -580,7 +584,7 @@ window.addEventListener('unhandledrejection', function(e){
       <textarea class="form-textarea" id="chore-desc-input" placeholder="Any extra details…" rows="2"></textarea>
     </div>
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="closeModal('add-chore-overlay')">Cancel</button>
+      <button class="btn btn-secondary" onclick="guardedClose('add-chore-overlay','chore-name-input')">Cancel</button>
       <button class="btn btn-primary" id="btn-save-chore">Save Chore</button>
     </div>
     <div class="btn-row" id="chore-delete-row" style="display:none;margin-top:8px;">
@@ -637,7 +641,7 @@ window.addEventListener('unhandledrejection', function(e){
       <textarea class="form-textarea" id="event-notes-input" placeholder="Any extra details…" rows="2"></textarea>
     </div>
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="closeModal('add-event-overlay')">Cancel</button>
+      <button class="btn btn-secondary" onclick="guardedClose('add-event-overlay','event-title-input')">Cancel</button>
       <button class="btn btn-calendar" id="btn-save-event">Save Event</button>
     </div>
     <div class="btn-row" id="event-delete-row" style="display:none;margin-top:8px;">
@@ -715,7 +719,7 @@ window.addEventListener('unhandledrejection', function(e){
       <textarea class="form-textarea" id="tradition-desc-input" placeholder="What makes this tradition special…" rows="2"></textarea>
     </div>
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="closeModal('add-tradition-overlay')">Cancel</button>
+      <button class="btn btn-secondary" onclick="guardedClose('add-tradition-overlay','tradition-name-input')">Cancel</button>
       <button class="btn btn-primary" id="btn-save-tradition">Save Tradition</button>
     </div>
     <div class="btn-row" id="tradition-delete-row" style="display:none;margin-top:8px;">
@@ -770,7 +774,7 @@ window.addEventListener('unhandledrejection', function(e){
       <textarea class="form-textarea" id="trip-notes-input" placeholder="Plans, ideas, things to remember…" rows="2"></textarea>
     </div>
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="closeModal('add-trip-overlay')">Cancel</button>
+      <button class="btn btn-secondary" onclick="guardedClose('add-trip-overlay','trip-name-input')">Cancel</button>
       <button class="btn btn-trip" id="btn-save-trip">Save Trip</button>
     </div>
     <div class="btn-row" id="trip-delete-row" style="display:none;margin-top:8px;">
@@ -793,6 +797,9 @@ window.addEventListener('unhandledrejection', function(e){
     <div class="modal-handle"></div>
     <div class="modal-title">What would you like to add?</div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;">
+      <div class="more-drawer-item" onclick="closeModal('add-sheet-overlay');openSmartScan()" style="border-radius:12px;border:1.5px solid var(--accent);background:var(--accent-light);">
+        <span class="more-drawer-icon">🧠</span><div><div class="more-drawer-label" style="color:var(--accent);">Smart Scan</div><div class="more-drawer-sub">Type, paste, or photo — AI adds anything automatically</div></div>
+      </div>
       <div class="more-drawer-item" onclick="closeModal('add-sheet-overlay');openAddChore()" style="border-radius:12px;border:1.5px solid var(--border);">
         <span class="more-drawer-icon">✅</span><div><div class="more-drawer-label">Chore</div><div class="more-drawer-sub">A task or responsibility</div></div>
       </div>
@@ -817,6 +824,66 @@ window.addEventListener('unhandledrejection', function(e){
   <div class="modal">
     <div class="modal-handle"></div>
     <div id="family-modal-content"></div>
+  </div>
+</div>
+
+<!-- SMART SCAN MODAL -->
+<div class="overlay" id="smart-scan-overlay" style="z-index:340;">
+  <div class="modal" style="max-height:92vh;overflow-y:auto;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🧠 Smart Scan</div>
+
+    <!-- Step 1: Input -->
+    <div id="scan-step-input">
+      <div class="modal-sub" style="margin-bottom:14px;">Type, paste, or photograph anything — AI figures out what to create.</div>
+
+      <textarea class="form-textarea" id="scan-text-input" rows="4" placeholder="Examples:&#10;• Jasmine has a dentist appointment Thursday at 3pm&#10;• Take out bins every Tuesday, 5 points&#10;• Game night every Friday evening&#10;• We're going to Barcelona July 15-22"></textarea>
+
+      <div style="text-align:center;color:var(--text2);font-size:0.75rem;margin:10px 0;">— or scan an image —</div>
+
+      <div id="scan-pick-zone" style="margin-bottom:12px;">
+        <div id="scan-dropzone" onclick="document.getElementById('scan-file-input').click()"
+          style="border:2px dashed var(--accent);border-radius:14px;padding:20px 16px;text-align:center;cursor:pointer;background:var(--accent-light);transition:background 0.15s;">
+          <div style="font-size:1.8rem;margin-bottom:4px;">📷</div>
+          <div style="font-weight:600;color:var(--accent);font-size:0.88rem;">Tap to choose image</div>
+          <div style="font-size:0.72rem;color:var(--text2);margin-top:3px;">Photo of a schedule, letter, flyer, invitation…</div>
+        </div>
+        <div id="scan-camera-btns" style="display:none;gap:8px;margin-top:8px;"></div>
+      </div>
+      <input type="file" id="scan-file-input" accept="image/*" style="display:none;" onchange="onScanFileChosen(event)" />
+      <input type="file" id="scan-camera-input" accept="image/*" capture="environment" style="display:none;" onchange="onScanFileChosen(event)" />
+
+      <div id="scan-thumbs" style="display:none;margin-bottom:12px;">
+        <img id="scan-preview-img" style="width:100%;max-height:180px;object-fit:contain;border-radius:10px;border:1.5px solid var(--border);" />
+        <button class="btn btn-secondary" style="margin-top:6px;font-size:0.78rem;padding:6px 12px;" onclick="clearScanImage()">Remove image</button>
+      </div>
+
+      <div class="btn-row" style="margin-top:14px;">
+        <button class="btn btn-secondary" onclick="guardedCloseScan()">Cancel</button>
+        <button class="btn btn-primary" id="btn-scan-go" onclick="runSmartScan()">
+          🧠 Scan &amp; Create
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Processing -->
+    <div id="scan-step-processing" style="display:none;text-align:center;padding:32px 0;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">
+        <span class="scan-dot"></span><span class="scan-dot"></span><span class="scan-dot"></span>
+      </div>
+      <div style="font-weight:600;font-size:1rem;margin-bottom:6px;">Thinking…</div>
+      <div style="color:var(--text2);font-size:0.82rem;">AI is reading and creating entries</div>
+    </div>
+
+    <!-- Step 3: Review -->
+    <div id="scan-step-review" style="display:none;">
+      <div class="modal-sub" id="scan-review-sub" style="margin-bottom:14px;"></div>
+      <div id="scan-review-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:52vh;overflow-y:auto;"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="scanBackToInput()">← Edit</button>
+        <button class="btn btn-primary" onclick="saveScanResults()">✓ Save All</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -857,6 +924,8 @@ window.addEventListener('unhandledrejection', function(e){
 <!-- ══════════════════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════════════════
 // STORAGE LAYER — uses window.storage (artifact) with Firebase fallback (hosted)
@@ -880,9 +949,11 @@ async function initFirebase(){
       firebase.initializeApp(config);
       db = firebase.database();
       _firebaseAvailable = true;
-      console.log('[Our Home] Firebase connected');
+      console.log('[Our Home] ✅ Firebase connected — writing to homeFamily/');
+    } else {
+      console.log('[Our Home] ⚠️ Firebase SDK not loaded (typeof firebase =', typeof firebase, ')');
     }
-  } catch(e){ console.log('[Our Home] Firebase not available, using local storage'); }
+  } catch(e){ console.log('[Our Home] ⚠️ Firebase init failed:', e.message); }
 }
 
 let _listeners = [];
@@ -900,17 +971,30 @@ async function save(k, data){
 
 async function saveRecord(collection, record){
   if(!record.id) return;
-  // Load current collection, add/update record, save back
-  const all = await loadLocal(collection, {});
-  all[record.id] = record;
-  await save(collection, all);
+  // Firebase: write directly to the record's path
+  if(_firebaseAvailable && db){
+    try{ await db.ref(dbPath(collection)+'/'+record.id).set(record); }catch(e){ console.error('Firebase saveRecord error:', e); }
+  }
+  // Also save locally
+  try {
+    const all = JSON.parse(localStorage.getItem(storageKey(collection)) || '{}');
+    all[record.id] = record;
+    localStorage.setItem(storageKey(collection), JSON.stringify(all));
+  } catch(e){}
 }
 
 async function deleteRecord(collection, id){
   if(!id) return;
-  const all = await loadLocal(collection, {});
-  delete all[id];
-  await save(collection, all);
+  // Firebase: remove directly
+  if(_firebaseAvailable && db){
+    try{ await db.ref(dbPath(collection)+'/'+id).remove(); }catch(e){ console.error('Firebase deleteRecord error:', e); }
+  }
+  // Also remove locally
+  try {
+    const all = JSON.parse(localStorage.getItem(storageKey(collection)) || '{}');
+    delete all[id];
+    localStorage.setItem(storageKey(collection), JSON.stringify(all));
+  } catch(e){}
 }
 
 async function loadLocal(k, fallback){
@@ -2387,10 +2471,13 @@ function showToast(msg){
 }
 
 let _confirmResolve = null;
-function customConfirm(message){
+function customConfirm(message, actionLabel){
   return new Promise(resolve => {
     _confirmResolve = resolve;
     document.getElementById('confirm-message').textContent = message;
+    const btn = document.getElementById('confirm-yes');
+    btn.textContent = actionLabel || 'Delete';
+    btn.className = 'btn ' + (actionLabel === 'Discard' ? 'btn-primary' : 'btn-danger');
     openModal('confirm-overlay');
   });
 }
@@ -2456,6 +2543,331 @@ function openModal(id){
 function closeModal(id){
   document.getElementById(id)?.classList.remove('open');
   document.body.style.overflow='';
+}
+
+async function guardedClose(overlayId, inputId){
+  const val = document.getElementById(inputId)?.value?.trim();
+  if(val){
+    const confirmed = await customConfirm('You have unsaved changes. Discard them?', 'Discard');
+    if(!confirmed) return;
+  }
+  closeModal(overlayId);
+}
+
+async function guardedCloseScan(){
+  const hasText = document.getElementById('scan-text-input')?.value?.trim();
+  const hasImage = !!_scanImageBase64;
+  const hasResults = _scanResults && _scanResults.length > 0;
+  if(hasText || hasImage || hasResults){
+    const confirmed = await customConfirm('You have unsaved changes. Discard them?', 'Discard');
+    if(!confirmed) return;
+  }
+  closeModal('smart-scan-overlay');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// GEMINI AI WORKER
+// ══════════════════════════════════════════════════════════════════════════════
+const GEMINI_WORKER_URL = 'https://twilight-dew-e570.jacobdsiler.workers.dev/gemini';
+
+async function callGemini(prompt, images = [], config = {}){
+  const body = { prompt, images, config };
+  let res;
+  try {
+    res = await fetch(GEMINI_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(60000)
+    });
+  } catch(e) {
+    throw new Error('Could not reach the AI worker — check your connection. (' + e.message + ')');
+  }
+  const data = await res.json().catch(() => ({ error: 'Worker returned non-JSON (status ' + res.status + ')' }));
+  if(!res.ok) throw new Error(data.error || 'Worker error ' + res.status);
+  if(!data.text) throw new Error('No text returned from AI.');
+  return data.text;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CAMERA DETECTION
+// ══════════════════════════════════════════════════════════════════════════════
+let _hasCamera = null;
+async function detectCamera(){
+  if(_hasCamera !== null) return _hasCamera;
+  try {
+    if(!navigator.mediaDevices?.enumerateDevices) return (_hasCamera = false);
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    _hasCamera = devices.some(d => d.kind === 'videoinput');
+  } catch { _hasCamera = false; }
+  return _hasCamera;
+}
+
+async function initScanCameraUI(dropzoneId, cameraBtnsId, fileInputId, cameraInputId, accentColor){
+  const hasCamera = await detectCamera();
+  const btnsEl = document.getElementById(cameraBtnsId);
+  const dropEl = document.getElementById(dropzoneId);
+  if(!btnsEl || !dropEl) return;
+  if(!hasCamera){ btnsEl.style.display='none'; return; }
+  dropEl.style.display = 'none';
+  btnsEl.style.display = 'flex';
+  btnsEl.innerHTML = `
+    <button onclick="document.getElementById('${cameraInputId}').click()"
+      style="flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 12px;
+             background:${accentColor};color:#fff;border:none;border-radius:14px;cursor:pointer;
+             font-size:0.88rem;font-weight:700;font-family:'DM Sans',sans-serif;">
+      📷 Take Photo
+    </button>
+    <button onclick="document.getElementById('${fileInputId}').click()"
+      style="flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 12px;
+             background:var(--surface2);color:var(--text);border:1.5px solid var(--border);
+             border-radius:14px;cursor:pointer;font-size:0.88rem;font-weight:700;
+             font-family:'DM Sans',sans-serif;">
+      🖼 Library
+    </button>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SMART SCAN — Universal AI-powered entry creation
+// ══════════════════════════════════════════════════════════════════════════════
+let _scanImageBase64 = null;
+let _scanImageMime = null;
+let _scanResults = []; // parsed items from Gemini
+
+function openSmartScan(){
+  _scanImageBase64 = null;
+  _scanImageMime = null;
+  _scanResults = [];
+  document.getElementById('scan-text-input').value = '';
+  document.getElementById('scan-thumbs').style.display = 'none';
+  scanShowStep('input');
+  const dz = document.getElementById('scan-dropzone');
+  const cb = document.getElementById('scan-camera-btns');
+  if(dz) dz.style.display='';
+  if(cb){ cb.style.display='none'; cb.innerHTML=''; }
+  initScanCameraUI('scan-dropzone','scan-camera-btns','scan-file-input','scan-camera-input','var(--accent)');
+  openModal('smart-scan-overlay');
+  setTimeout(()=>document.getElementById('scan-text-input').focus(), 300);
+}
+
+function scanShowStep(step){
+  ['input','processing','review'].forEach(s => {
+    const el = document.getElementById('scan-step-'+s);
+    if(el) el.style.display = s===step ? '' : 'none';
+  });
+}
+
+function onScanFileChosen(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const dataUrl = ev.target.result;
+    _scanImageMime = file.type || 'image/jpeg';
+    _scanImageBase64 = dataUrl.split(',')[1];
+    document.getElementById('scan-preview-img').src = dataUrl;
+    document.getElementById('scan-thumbs').style.display = 'block';
+    document.getElementById('scan-dropzone').style.display = 'none';
+    const cb = document.getElementById('scan-camera-btns');
+    if(cb) cb.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearScanImage(){
+  _scanImageBase64 = null;
+  _scanImageMime = null;
+  document.getElementById('scan-thumbs').style.display = 'none';
+  document.getElementById('scan-dropzone').style.display = '';
+  initScanCameraUI('scan-dropzone','scan-camera-btns','scan-file-input','scan-camera-input','var(--accent)');
+}
+
+function scanBackToInput(){
+  _scanResults = [];
+  scanShowStep('input');
+}
+
+async function runSmartScan(){
+  const textInput = document.getElementById('scan-text-input').value.trim();
+  if(!textInput && !_scanImageBase64){
+    showToast('Please type something or add an image');
+    return;
+  }
+
+  scanShowStep('processing');
+
+  // Build member context
+  const memberNames = STATE.members.map(m => `${m.name} (${m.emoji}, id:${m.id}, role:${m.role})`).join(', ') || 'none added yet';
+  const today = new Date();
+  const todayInfo = `Today is ${today.toLocaleDateString('en-IE',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}`;
+
+  const prompt = `You are the AI assistant for "Our Home", a family household management app. Analyze the user's input and extract structured entries to create.
+
+CONTEXT:
+- ${todayInfo}
+- Family members: ${memberNames}
+
+The app supports these entry types:
+1. **chore** — a task/responsibility (can be recurring)
+2. **event** — a calendar appointment or one-time event  
+3. **tradition** — a recurring family tradition
+4. **trip** — a family trip/holiday
+5. **member** — a new family member profile
+
+Return ONLY a JSON array — no markdown, no backticks, no explanation. Each element must be ONE of:
+
+For chore:
+{"type":"chore","title":"Take out bins","emoji":"🗑️","description":"","assignedTo":["member_id"],"recurrence":"daily|weekdays|weekly|once","weekdays":[0,1,2,3,4,5,6],"points":10}
+
+For event:
+{"type":"event","title":"Dentist","emoji":"🦷","date":"YYYY-MM-DD","time":"HH:MM","location":"","notes":"","assignedTo":["member_id"]}
+
+For tradition:
+{"type":"tradition","title":"Game Night","emoji":"🎮","description":"","recurrence":"weekly|monthly|yearly","weekdays":[5],"monthDay":1,"yearMonth":0,"yearDay":1}
+
+For trip:
+{"type":"trip","title":"Beach Holiday","emoji":"🏖️","destination":"","startDate":"YYYY-MM-DD","endDate":"YYYY-MM-DD","participants":["member_id"],"notes":""}
+
+For member:
+{"type":"member","name":"Sarah","emoji":"👧","role":"child|member|parent|guest","color":"#2d6a4f"}
+
+RULES:
+- Parse dates relative to today. "Thursday" = the next Thursday. "Next week" = next Monday.
+- Match member names to existing members when assigning. Use the member id.
+- Pick appropriate emoji for each entry.
+- For weekly chores/traditions, weekdays array uses: 0=Sunday, 1=Monday, ..., 6=Saturday.
+- Points for chores: easy=5, medium=10, hard=15, very hard=20.
+- If multiple items can be extracted, return multiple entries.
+- Return ONLY the JSON array.
+
+${textInput ? 'USER TEXT: ' + textInput : 'USER PROVIDED AN IMAGE — extract all schedulable information from it.'}`;
+
+  try {
+    const images = _scanImageBase64 ? [{ data: _scanImageBase64, mimeType: _scanImageMime }] : [];
+    const rawText = await callGemini(prompt, images, { temperature: 0.1, maxOutputTokens: 4096 });
+    let cleaned = rawText.replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'').trim();
+    cleaned = cleaned.replace(/,\s*([}\]])/g, '$1');
+    
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch {
+      const s = cleaned.indexOf('['), e = cleaned.lastIndexOf(']');
+      if(s !== -1 && e > s) parsed = JSON.parse(cleaned.substring(s, e+1));
+      else throw new Error('Could not parse AI response.');
+    }
+
+    if(!Array.isArray(parsed)) parsed = [parsed];
+    _scanResults = parsed.map((item, idx) => ({...item, _idx: idx, _checked: true}));
+    
+    renderScanReview();
+    scanShowStep('review');
+  } catch(e){
+    scanShowStep('input');
+    showToast('⚠️ ' + (e.message || 'Scan failed'));
+    console.error('Smart scan error:', e);
+  }
+}
+
+function renderScanReview(){
+  const typeLabels = {chore:'✅ Chore',event:'📅 Event',tradition:'🎄 Tradition',trip:'✈️ Trip',member:'👤 Member'};
+  const typeColors = {chore:'var(--chore)',event:'var(--calendar)',tradition:'var(--tradition)',trip:'var(--trip)',member:'var(--accent)'};
+
+  document.getElementById('scan-review-sub').textContent = 
+    `Found ${_scanResults.length} item${_scanResults.length!==1?'s':''} to create:`;
+
+  document.getElementById('scan-review-list').innerHTML = _scanResults.map(item => {
+    const label = typeLabels[item.type] || item.type;
+    const color = typeColors[item.type] || 'var(--text2)';
+    let detail = '';
+    
+    if(item.type==='chore'){
+      const recLabel = {daily:'Daily',weekdays:'Weekdays',weekly:'Weekly',once:'One-time'}[item.recurrence]||item.recurrence;
+      const assignees = (item.assignedTo||[]).map(id => memberEmoji(id)+' '+memberName(id)).join(', ');
+      detail = `${recLabel}${assignees?' · '+assignees:''}${item.points?' · '+item.points+' pts':''}`;
+    } else if(item.type==='event'){
+      detail = `${item.date||''}${item.time?' at '+item.time:''}${item.location?' · 📍 '+item.location:''}`;
+    } else if(item.type==='tradition'){
+      const recLabel = {weekly:'Weekly',monthly:'Monthly',yearly:'Yearly'}[item.recurrence]||item.recurrence;
+      detail = recLabel;
+    } else if(item.type==='trip'){
+      detail = `${item.destination||''}${item.startDate?' · '+item.startDate:''}${item.endDate?' → '+item.endDate:''}`;
+    } else if(item.type==='member'){
+      detail = `${item.role||'member'}`;
+    }
+
+    return `<label style="display:flex;align-items:flex-start;gap:10px;padding:12px;background:var(--surface2);border-radius:12px;cursor:pointer;border-left:4px solid ${color};">
+      <input type="checkbox" data-scan-idx="${item._idx}" ${item._checked?'checked':''} style="width:18px;height:18px;cursor:pointer;flex-shrink:0;margin-top:2px;" />
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:1.1rem;">${item.emoji||'📌'}</span>
+          <span style="font-weight:600;font-size:0.9rem;">${item.title||item.name||'Untitled'}</span>
+          <span style="font-size:0.65rem;padding:2px 7px;border-radius:20px;background:${color}22;color:${color};font-weight:600;">${label}</span>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text2);margin-top:3px;">${detail}</div>
+        ${item.description?`<div style="font-size:0.73rem;color:var(--text2);margin-top:2px;font-style:italic;">${item.description}</div>`:''}
+      </div>
+    </label>`;
+  }).join('');
+}
+
+async function saveScanResults(){
+  const checked = new Set(
+    Array.from(document.querySelectorAll('[data-scan-idx]:checked')).map(el => parseInt(el.dataset.scanIdx))
+  );
+  const toSave = _scanResults.filter(r => checked.has(r._idx));
+  if(!toSave.length){ showToast('Nothing selected.'); return; }
+
+  let created = 0;
+  for(const item of toSave){
+    try {
+      if(item.type === 'chore'){
+        await saveRecord('chores', {
+          id: uid(), title: item.title, emoji: item.emoji||'✅',
+          description: item.description||'', assignedTo: item.assignedTo||[],
+          recurrence: item.recurrence||'daily', weekdays: item.weekdays||[],
+          points: item.points||10, createdAt: Date.now()
+        });
+        created++;
+      } else if(item.type === 'event'){
+        await saveRecord('events', {
+          id: uid(), title: item.title, emoji: item.emoji||'📅',
+          date: item.date||todayStr(), time: item.time||'',
+          location: item.location||'', notes: item.notes||'',
+          assignedTo: item.assignedTo||[], createdAt: Date.now()
+        });
+        created++;
+      } else if(item.type === 'tradition'){
+        await saveRecord('traditions', {
+          id: uid(), title: item.title, emoji: item.emoji||'🎄',
+          description: item.description||'', recurrence: item.recurrence||'weekly',
+          weekdays: item.weekdays||[], monthDay: item.monthDay||1,
+          yearMonth: item.yearMonth||0, yearDay: item.yearDay||1,
+          createdAt: Date.now()
+        });
+        created++;
+      } else if(item.type === 'trip'){
+        await saveRecord('trips', {
+          id: uid(), title: item.title, emoji: item.emoji||'✈️',
+          destination: item.destination||'', startDate: item.startDate||'',
+          endDate: item.endDate||'', participants: item.participants||[],
+          notes: item.notes||'', packingList: [], createdAt: Date.now()
+        });
+        created++;
+      } else if(item.type === 'member'){
+        await saveRecord('members', {
+          id: uid(), name: item.name, emoji: item.emoji||'👤',
+          role: item.role||'member', color: item.color||'#2d6a4f',
+          joinedAt: Date.now()
+        });
+        created++;
+      }
+    } catch(e){ console.error('Failed to save scan item:', e); }
+  }
+
+  await reloadState();
+  closeModal('smart-scan-overlay');
+  showToast(`🧠 Created ${created} item${created!==1?'s':''}!`);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -2543,10 +2955,32 @@ function bindEvents(){
   });
 
   // Backdrop-click-to-close for overlays
-  ['add-member-overlay','add-chore-overlay','add-event-overlay','add-tradition-overlay',
-   'add-trip-overlay','trip-detail-overlay','add-sheet-overlay','family-overlay'].forEach(id=>{
+  // SAFE to dismiss — no user data at risk
+  const safeToClose = ['trip-detail-overlay','add-sheet-overlay','family-overlay'];
+  safeToClose.forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.addEventListener('click', e=>{ if(e.target===el) closeModal(id); });
+  });
+
+  // NEEDS CONFIRMATION — user may have entered data
+  const needsConfirm = [
+    {id:'add-member-overlay', check:()=> document.getElementById('member-name-input')?.value.trim() },
+    {id:'add-chore-overlay', check:()=> document.getElementById('chore-name-input')?.value.trim() },
+    {id:'add-event-overlay', check:()=> document.getElementById('event-title-input')?.value.trim() },
+    {id:'add-tradition-overlay', check:()=> document.getElementById('tradition-name-input')?.value.trim() },
+    {id:'add-trip-overlay', check:()=> document.getElementById('trip-name-input')?.value.trim() || document.getElementById('trip-dest-input')?.value.trim() },
+    {id:'smart-scan-overlay', check:()=> document.getElementById('scan-text-input')?.value.trim() || _scanImageBase64 || (_scanResults && _scanResults.length > 0) },
+  ];
+  needsConfirm.forEach(({id, check})=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('click', async e=>{
+      if(e.target !== el) return;
+      if(check()){
+        const confirmed = await customConfirm('You have unsaved changes. Discard them?', 'Discard');
+        if(!confirmed) return;
+      }
+      closeModal(id);
+    });
   });
 
   // Long-press on family badge to open more drawer
@@ -2560,6 +2994,12 @@ function bindEvents(){
 // Expose to inline handlers
 window.openAddMember = openAddMember;
 window.autoFormatFamilyCode = autoFormatFamilyCode;
+window.openSmartScan = openSmartScan;
+window.onScanFileChosen = onScanFileChosen;
+window.clearScanImage = clearScanImage;
+window.runSmartScan = runSmartScan;
+window.saveScanResults = saveScanResults;
+window.scanBackToInput = scanBackToInput;
 window.openEditMember = openEditMember;
 window.openAddChore = openAddChore;
 window.openEditChore = openEditChore;
@@ -2590,6 +3030,8 @@ window.selectCalDate = selectCalDate;
 window.setMode = setMode;
 window.closeModal = closeModal;
 window.openModal = openModal;
+window.guardedClose = guardedClose;
+window.guardedCloseScan = guardedCloseScan;
 window.switchFamily = switchFamily;
 window.joinFromModal = joinFromModal;
 window.showToast = showToast;
